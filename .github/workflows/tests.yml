@@ -1,0 +1,42 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - '**'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '14.x'
+          
+      - name: Check if repository is private
+        run: exit 1
+        if: github.event.repository.private
+        
+      - name: Get testing library
+        run: |
+          set -eu
+          git clone --branch main --single-branch --depth 1 \
+            https://github.com/Yandex-Practicum/tests-selfmade-project-2-public.git
+          
+      - name: Run tests
+        run: bash tests-selfmade-project-2-public/run.sh
+        
+      - name: Upload layout comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: layout-compare
+          path: tests-selfmade-project-2-public/output.jpg
+          
+      - name: Show test results
+        run: bash tests-selfmade-project-2-public/result.sh
